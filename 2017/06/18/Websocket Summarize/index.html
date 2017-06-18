@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" >
     <meta name="baidu-site-verification" content="dIcXMeY8Ya" />
     
-    <title>`Mybatis 入门`标签下的文章 | Quan Blogs</title>
+    <title>WebSocket 笔记 | Quan Blogs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" >
     <meta name="keywords" content="wuquan" >
     <meta name="description" content="Quan个人前端小站" >
@@ -57,19 +57,19 @@
         <div class="dropnav icon-paragraph-justify" id="JELON__btnDropNav"></div>
         <ul class="menu hidden" id="JELON__menu">
             
-            <li rel="/tags/Mybatis-入门/index.html" class="item ">
+            <li rel="/2017/06/18/Websocket Summarize/index.html" class="item ">
                 <a href="/" title="首页" class="icon-home">&nbsp;首页</a>
             </li>
             
-            <li rel="/tags/Mybatis-入门/index.html" class="item ">
+            <li rel="/2017/06/18/Websocket Summarize/index.html" class="item ">
                 <a href="/lab/" title="实验室" class="icon-lab">&nbsp;实验室</a>
             </li>
             
-            <li rel="/tags/Mybatis-入门/index.html" class="item ">
+            <li rel="/2017/06/18/Websocket Summarize/index.html" class="item ">
                 <a href="/about/" title="关于" class="icon-about">&nbsp;关于</a>
             </li>
             
-            <li rel="/tags/Mybatis-入门/index.html" class="item ">
+            <li rel="/2017/06/18/Websocket Summarize/index.html" class="item ">
                 <a href="/comment/" title="留言" class="icon-comment">&nbsp;留言</a>
             </li>
             
@@ -119,77 +119,83 @@
     <div class="container body clearfix">
         <section class="content">
             <div class="content-main widget">
-                <!-- 按标签分类 -->
-
-    <h3 class="widget-hd">
-        <strong>
-            
-                `Mybatis 入门`标签下的文章
-            
-        </strong>
-    </h3>
-    
-        <!-- 文章 -->
-<article class="post">
-    <header>
-        
-        <a class="cat-link" href="/categories/MyBatis/">MyBatis</a>
-        
-        <!-- 文章标题 -->
-        
-    <h3 class="post-title">
-    	<a href="/./2017/06/17/Mybatis summarize/">
-    		MyBatis 简介
-    	</a>
-    </h3>
-
+                <!-- 文章页 -->
+<!-- 文章 -->
+<article class="post article">
+    <header class="text-center">
+        <h3 class="post-title"><span>WebSocket 笔记</span></h3>
     </header>
-    <p class="post-meta">
+    <p class="post-meta text-center">
         Quan 发表于
-        <time datetime="2017-06-17T11:00:54.401Z">2017-06-17</time>
+        <time datetime="2017-06-18T06:11:25.354Z">2017-06-18</time>
     </p>
-
     <div class="post-content">
-        <div class="post-excerpt">
-            
-                <h4 id="一，简介"><a href="#一，简介" class="headerlink" title="一，简介"></a>一，简介</h4><blockquote>
-<p>查考 <a href="http://www.mybatis.org/mybatis-3/zh/index.html" target="_blank" rel="external">Mybatis官网</a></p>
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>  Websocket是html5提出的一个协议规范，参考rfc6455.</p>
+<p>  Websocket约定了一个通信的规范，通过一个握手的机制，客户端（浏览器）和服务器（webserver）之间能建立一个类似tcp的连接，从而方便c－s之间的通信。在websocket出现之前，web交互一般是基于http协议的短连接或者长连接。</p>
+<a id="more"></a>
+<p>​  WebSocket是为解决客户端与服务端实时通信而产生的技术。websocket协议本质上是一个基于tcp的协议，是先通过HTTP/HTTPS协议发起一条特殊的http请求进行握手后创建一个用于交换数据的TCP连接，此后服务端与客户端通过此TCP连接进行实时通信。</p>
+<h3 id="1-Websocket协议规范"><a href="#1-Websocket协议规范" class="headerlink" title="1. Websocket协议规范"></a>1. Websocket协议规范</h3><p>  <strong>a. 握手规范 </strong></p>
+<p>  websocket 是 独立的基于TCP的协议， 其跟http协议的关系仅仅是 WebSocket 的握手被http 服务器当做 Upgrade request http包处理。 websocket 有自己的握手处理。 TCP连接建立后，client 发送websocket 握手请求. 请求包必须符合如下规范:</p>
+<ul>
+<li>有效的http request请求格式，而且Http request method必须是GET，协议版本不小于1.1，如: Get /chat HTTP/1.1 。</li>
+<li>必须包括’Connection’头域，其值为 “Upgrade”，指示服务器升级连接。</li>
+<li>必须包括’Upgrade’头域，并且其值为 “websocket”，指示服务升级为websocket服务。</li>
+<li>必须包括’Sec-WebSocket-Key’，其值采用base64编码的随机16字节长的字符序列， 服务器端根据该域来判断client 确实是websocket请求而不是冒充的，如http。响应方式是，首先要获取到请求头中的Sec-WebSocket-Key的值，再把这一段GUID “258EAFA5-E914-47DA-95CA-C5AB0DC85B11”加到获取到的Sec-WebSocket-Key的值的后面，然后拿这个字符串做SHA-1 hash计算，然后再把得到的结果通过base64加密，就得到了返回给客户端的Sec-WebSocket-Accept的http响应头的值。</li>
+<li>如果请求来自浏览器客户端，还必须包括Origin头域 。 该头域用于防止未授权的跨域脚本攻击，服务器可以从Origin决定是否接受该WebSocket连接。</li>
+<li>必须包括”Sec-webSocket-Version” 头域，当前值必须是13。</li>
+<li>可能包括”Sec-WebSocket-Protocol”，表示client（应用程序）支持的协议列表，server选择一个或者没有可接受的协议响应之。</li>
+<li><p>可能包括”Sec-WebSocket-Extensions”， 协议扩展， 某类协议可能支持多个扩展，通过它可以实现协议增强。</p>
+<p><strong>b. 数据传输</strong></p>
+</li>
+</ul>
+<blockquote>
+<p>TODO</p>
 </blockquote>
-            
-            <p class="more">
-                <a href="./2017/06/17/Mybatis summarize/">阅读剩下更多</a>
-            </p>
-        </div>
-        <div class="post-thumbnail" data-img="">
-            <a href="./2017/06/17/Mybatis summarize/" title="MyBatis 简介">
-                
-                    <img class="thumbnail" src="/img/default.png" data-echo="//7xs305.com1.z0.glb.clouddn.com/thumbnail/7.jpg" alt="默认配图" >
-                
-            </a>
-        </div>
+<h3 id="2-Websocket-Api-规范（Java-EE-Chapter-18-Websocket-API）"><a href="#2-Websocket-Api-规范（Java-EE-Chapter-18-Websocket-API）" class="headerlink" title="2. Websocket Api 规范（Java EE Chapter 18 Websocket API）"></a><strong>2. Websocket Api 规范（Java EE Chapter 18 Websocket API）</strong></h3><p><a href="https://docs.oracle.com/javaee/7/tutorial/websocket.htm#GKJIQ5" target="_blank" rel="external">https://docs.oracle.com/javaee/7/tutorial/websocket.htm#GKJIQ5</a></p>
+
     </div>
     <p class="post-meta">
-        
-        <!-- 标签 -->
+        <span class="post-cat">分类：
+            <a class="cat-link" href="/categories/WebSocket/">WebSocket</a>
+        </span>
         <span class="post-tags">
             标签：
             
     
-        <a href="/tags/Mybatis-入门/" title="Mybatis 入门">Mybatis 入门</a>
+        <a href="/tags/webscoket/" title="webscoket">webscoket</a>
     
 
         </span>
     </p>
 </article>
+<div class="article-share clearfix text-center">
+    <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div>
 
+<!-- 上一篇/下一篇 -->
+
+<div class="article-nav clearfix">
+    
+    <span class="prev fl">
+        上一篇<br >
+        <a href="javascript: void(0);">没有上一篇了</a>
+    </span>
     
 
     
-    <nav class="page-navigator">
-        <span class="page-number current">1</span>
-    </nav>
+    <span class="next fr">
+        下一篇<br >
+        <a href="/2017/06/17/Mybatis summarize/">
+            
+                MyBatis 简介
+            
+        </a>
+    </span>
     
+</div>
 
+<!-- 文章评论 -->
 
             </div>
 
