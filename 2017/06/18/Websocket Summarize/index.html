@@ -135,23 +135,44 @@
 <a id="more"></a>
 <p>​  WebSocket是为解决客户端与服务端实时通信而产生的技术。websocket协议本质上是一个基于tcp的协议，是先通过HTTP/HTTPS协议发起一条特殊的http请求进行握手后创建一个用于交换数据的TCP连接，此后服务端与客户端通过此TCP连接进行实时通信。</p>
 <h3 id="1-Websocket协议规范"><a href="#1-Websocket协议规范" class="headerlink" title="1. Websocket协议规范"></a>1. Websocket协议规范</h3><p>  <strong>a. 握手规范 </strong></p>
-<p>  websocket 是 独立的基于TCP的协议， 其跟http协议的关系仅仅是 WebSocket 的握手被http 服务器当做 Upgrade request http包处理。 websocket 有自己的握手处理。 TCP连接建立后，client 发送websocket 握手请求. 请求包必须符合如下规范:</p>
+<p>  websocket 是 独立的基于TCP的协议， 其跟http协议的关系仅仅是 WebSocket 的握手被http 服务器当做 Upgrade request http包处理。 websocket 有自己的握手处理。 TCP连接建立后，client 发送websocket 握手请求. </p>
+<blockquote>
+<p>请求格式如下:</p>
+</blockquote>
+  <figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">GET /path/to/websocket/endpoint HTTP/1.1</div><div class="line">Host: localhost</div><div class="line">Upgrade: websocket</div><div class="line">Connection: Upgrade</div><div class="line">Sec-WebSocket-Key: xqBt3ImNzJbYqRINxEFlkg==</div><div class="line">Origin: http://localhost</div><div class="line">Sec-WebSocket-Version: 13</div></pre></td></tr></table></figure>
+<blockquote>
+<p>一个简单response</p>
+</blockquote>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 101 Switching Protocols</div><div class="line">Upgrade: websocket</div><div class="line">Connection: Upgrade</div><div class="line">Sec-WebSocket-Accept: K7DJLdLooIwIG/MOpvWFB3y3FE8=</div></pre></td></tr></table></figure>
+<p>  握手规范:</p>
 <ul>
-<li>有效的http request请求格式，而且Http request method必须是GET，协议版本不小于1.1，如: Get /chat HTTP/1.1 。</li>
-<li>必须包括’Connection’头域，其值为 “Upgrade”，指示服务器升级连接。</li>
-<li>必须包括’Upgrade’头域，并且其值为 “websocket”，指示服务升级为websocket服务。</li>
-<li>必须包括’Sec-WebSocket-Key’，其值采用base64编码的随机16字节长的字符序列， 服务器端根据该域来判断client 确实是websocket请求而不是冒充的，如http。响应方式是，首先要获取到请求头中的Sec-WebSocket-Key的值，再把这一段GUID “258EAFA5-E914-47DA-95CA-C5AB0DC85B11”加到获取到的Sec-WebSocket-Key的值的后面，然后拿这个字符串做SHA-1 hash计算，然后再把得到的结果通过base64加密，就得到了返回给客户端的Sec-WebSocket-Accept的http响应头的值。</li>
-<li>如果请求来自浏览器客户端，还必须包括Origin头域 。 该头域用于防止未授权的跨域脚本攻击，服务器可以从Origin决定是否接受该WebSocket连接。</li>
-<li>必须包括”Sec-webSocket-Version” 头域，当前值必须是13。</li>
-<li>可能包括”Sec-WebSocket-Protocol”，表示client（应用程序）支持的协议列表，server选择一个或者没有可接受的协议响应之。</li>
+<li><p>有效的http request请求格式，而且Http request method必须是GET，协议版本不小于1.1，如: Get /chat HTTP/1.1 。</p>
+</li>
+<li><p>必须包括’Connection’头域，其值为 “Upgrade”，指示服务器升级连接。</p>
+</li>
+<li><p>必须包括’Upgrade’头域，并且其值为 “websocket”，指示服务升级为websocket服务。</p>
+</li>
+<li><p>必须包括’Sec-WebSocket-Key’，其值采用base64编码的随机16字节长的字符序列， 服务器端根据该域来判断client 确实是websocket请求而不是冒充的，如http。响应方式是，首先要获取到请求头中的Sec-WebSocket-Key的值，再把这一段GUID “258EAFA5-E914-47DA-95CA-C5AB0DC85B11”加到获取到的Sec-WebSocket-Key的值的后面，然后拿这个字符串做SHA-1 hash计算，然后再把得到的结果通过base64加密，就得到了返回给客户端的Sec-WebSocket-Accept的http响应头的值。</p>
+</li>
+<li><p>如果请求来自浏览器客户端，还必须包括Origin头域 。 该头域用于防止未授权的跨域脚本攻击，服务器可以从Origin决定是否接受该WebSocket连接。</p>
+</li>
+<li><p>必须包括”Sec-webSocket-Version” 头域，当前值必须是13。</p>
+</li>
+<li><p>可能包括”Sec-WebSocket-Protocol”，表示client（应用程序）支持的协议列表，server选择一个或者没有可接受的协议响应之。</p>
+</li>
 <li><p>可能包括”Sec-WebSocket-Extensions”， 协议扩展， 某类协议可能支持多个扩展，通过它可以实现协议增强。</p>
-<p><strong>b. 数据传输</strong></p>
 </li>
 </ul>
+<p><strong>b.传输协议 </strong></p>
 <blockquote>
 <p>TODO</p>
 </blockquote>
-<h3 id="2-Websocket-Api-规范（Java-EE-Chapter-18-Websocket-API）"><a href="#2-Websocket-Api-规范（Java-EE-Chapter-18-Websocket-API）" class="headerlink" title="2. Websocket Api 规范（Java EE Chapter 18 Websocket API）"></a><strong>2. Websocket Api 规范（Java EE Chapter 18 Websocket API）</strong></h3><p><a href="https://docs.oracle.com/javaee/7/tutorial/websocket.htm#GKJIQ5" target="_blank" rel="external">https://docs.oracle.com/javaee/7/tutorial/websocket.htm#GKJIQ5</a></p>
+<h3 id="2-Websocket-Api-规范（Java-EE-Chapter-18-Websocket-API）"><a href="#2-Websocket-Api-规范（Java-EE-Chapter-18-Websocket-API）" class="headerlink" title="2. Websocket Api 规范（Java EE Chapter 18 Websocket API）"></a>2. Websocket Api 规范（Java EE Chapter 18 Websocket API）</h3><blockquote>
+<p>参考  <a href="https://docs.oracle.com/javaee/7/tutorial/websocket.htm#GKJIQ5" target="_blank" rel="external">https://docs.oracle.com/javaee/7/tutorial/websocket.htm#GKJIQ5</a></p>
+</blockquote>
+<h3 id="3-Tomcat-WebSocket源码分析"><a href="#3-Tomcat-WebSocket源码分析" class="headerlink" title="3. Tomcat WebSocket源码分析"></a>3. Tomcat WebSocket源码分析</h3><blockquote>
+<p>TODO</p>
+</blockquote>
 
     </div>
     <p class="post-meta">
@@ -283,6 +304,7 @@
     
 
     <a href="/">鄂ICP备15016859号-1</a>
+    
 </footer>
 <div class="back-to-top" id="JELON__backToTop" title="返回顶部">返回顶部</div>
 <!-- 添加百度自动推送 -->
@@ -305,5 +327,6 @@
     <!--博客js脚本 -->
     <!-- 这里放网站js脚本 -->
 <script src="/js/main.js"></script>
+
 </body>
 </html>
