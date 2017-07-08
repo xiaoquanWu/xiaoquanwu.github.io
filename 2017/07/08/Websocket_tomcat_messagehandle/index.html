@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" >
+    <meta name="baidu-site-verification" content="dIcXMeY8Ya" />
+    
+    <title>Tomcat WebSocket消息处理器 | Quan Blogs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" >
+    <meta name="keywords" content="wuquan" >
+    <meta name="description" content="Quan个人前端小站" >
+
+    
+    <link rel="alternative" href="/atom.xml" title="Quan Blogs" type="application/atom+xml" >
+    
+    
+    <link rel="shortcut icon" href="/favicon.ico" >
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <!--[if lt IE 9]>
+    <script src="/js/html5.js"></script>
+    <![endif]-->
+    
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?fd459238242776d173cdc64918fb32f2";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+    
+</head>
+
+<body class="home">
+    <!--[if lt IE 9]>
+    <div class="browsehappy">
+        当前网页 <strong>不支持</strong>
+        你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+    </div>
+    <![endif]-->
+
+    <!-- 博客头部 -->
+    <header class="header">
+    <section class="container header-main">
+        <div class="logo">
+            <a href="/">
+                <div class="cover">
+                    <span class="name">Quan Blogs</span>
+                    <span class="description">Quan</span>
+                </div>
+            </a>
+        </div>
+        <div class="dropnav icon-paragraph-justify" id="JELON__btnDropNav"></div>
+        <ul class="menu hidden" id="JELON__menu">
+            
+            <li rel="/2017/07/08/Websocket_tomcat_messagehandle/index.html" class="item ">
+                <a href="/" title="首页" class="icon-home">&nbsp;首页</a>
+            </li>
+            
+            <li rel="/2017/07/08/Websocket_tomcat_messagehandle/index.html" class="item ">
+                <a href="/lab/" title="计划" class="icon-lab">&nbsp;计划</a>
+            </li>
+            
+            <li rel="/2017/07/08/Websocket_tomcat_messagehandle/index.html" class="item ">
+                <a href="/about/" title="关于" class="icon-about">&nbsp;关于</a>
+            </li>
+            
+            <li rel="/2017/07/08/Websocket_tomcat_messagehandle/index.html" class="item ">
+                <a href="/comment/" title="留言" class="icon-comment">&nbsp;留言</a>
+            </li>
+            
+        </ul>
+        <div class="profile clearfix">
+            <div class="feeds fl">
+                
+                
+                <p class="links">
+                    
+                        <a href="“#”" target="_blank">Coding</a>
+                        |
+                    
+                        <a href="#" target="_blank">Github</a>
+                        |
+                    
+                        <a href="#" target="_blank">百度统计</a>
+                        
+                    
+                </p>
+                <p class="sns">
+                    
+                        <a href="http://weibo.com/" class="sinaweibo" target="_blank"><b>■</b> 新浪微博</a>
+                    
+                        <a href="https://www.facebook.com/profile.php?id=100011855760219&amp;ref=bookmarks" class="qqweibo" target="_blank"><b>■</b> Facebook</a>
+                    
+                    <a href="javascript: void(0);" class="wechat">
+                        <b>■</b>
+                        公众号
+                        <span class="popover">
+                            <img src="/img/wechat_quan.jpg" width="120" height="120" alt="我的微信订阅号">
+                            <i class="arrow"></i>
+                        </span>
+                    </a>
+                </p>
+                
+            </div>
+            <div class="avatar fr">
+                <img src="/img/jelon.jpg" alt="avatar" title="Jelon" >
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- 博客正文 -->
+    <div class="container body clearfix">
+        <section class="content">
+            <div class="content-main widget">
+                <!-- 文章页 -->
+<!-- 文章 -->
+<article class="post article">
+    <header class="text-center">
+        <h3 class="post-title"><span>Tomcat WebSocket消息处理器</span></h3>
+    </header>
+    <p class="post-meta text-center">
+        Quan 发表于
+        <time datetime="2017-07-08T06:18:06.693Z">2017-07-08</time>
+    </p>
+    <div class="post-content">
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>在WebSocket链接建立后进行消息传输时，会对消息进行编解码处理，然后才被消息处理器（<code>javax.websocke.MessageHandler</code>）处理。Api规范里面提供自定义编码（<code>javax.websocket.Encoder</code>），解码(<code>javax.websocket.Decoder</code>)以及消息处理器的接口，可用于自定义消息的处理。</p>
+<a id="more"></a>
+<h4 id="1-Demo"><a href="#1-Demo" class="headerlink" title="1. Demo"></a>1. Demo</h4><blockquote>
+<p>自定义消息对象，以及编解码处理</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ViewMessage</span> <span class="keyword">implements</span> <span class="title">Encoder</span>.<span class="title">Text</span>&lt;<span class="title">ViewMessage</span>&gt;, <span class="title">Decoder</span>.<span class="title">Text</span>&lt;<span class="title">ViewMessage</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> String type;</div><div class="line">    <span class="keyword">private</span> String message;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ViewMessage</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ViewMessage</span><span class="params">(String type, String message)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.type = type;</div><div class="line">        <span class="keyword">this</span>.message = message;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getType</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> type;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> message;</div><div class="line">    &#125;</div><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">//    @Override</span></div><div class="line"><span class="comment">//    public String toString() &#123;</span></div><div class="line"><span class="comment">//        return type + ":" + message;</span></div><div class="line"><span class="comment">//    &#125;</span></div><div class="line"></div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> ViewMessage <span class="title">decode</span><span class="params">(String s)</span> <span class="keyword">throws</span> DecodeException </span>&#123;</div><div class="line">        String[] split = s.split(<span class="string">":"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ViewMessage(split[<span class="number">0</span>], split[<span class="number">1</span>]);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">  <span class="comment">//如果返回false，消息将不会被解码，也就是说上面的decode方法不会被调用</span></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">willDecode</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">encode</span><span class="params">(ViewMessage object)</span> <span class="keyword">throws</span> EncodeException </span>&#123;</div><div class="line">        <span class="keyword">return</span> object.getType() + <span class="string">":"</span> + object.getMessage();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(EndpointConfig endpointConfig)</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Server endpoint</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleEndpoint</span> <span class="keyword">extends</span> <span class="title">Endpoint</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onOpen</span><span class="params">(Session session, EndpointConfig config)</span> </span>&#123;</div><div class="line">        session.addMessageHandler(ViewMessage.class, message -&gt; &#123;</div><div class="line">          <span class="comment">//添加消息处理器</span></div><div class="line">            System.out.println(message.getType() + <span class="string">":"</span> + message.getMessage());</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClose</span><span class="params">(Session session, CloseReason closeReason)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onClose(session, closeReason);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Session session, Throwable throwable)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onError(session, throwable);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>ServerConfig</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExamplesConfig</span> <span class="keyword">implements</span> <span class="title">ServerApplicationConfig</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Set&lt;ServerEndpointConfig&gt; <span class="title">getEndpointConfigs</span><span class="params">(Set&lt;Class&lt;? extends Endpoint&gt;&gt; scanned)</span> </span>&#123;</div><div class="line">        Set&lt;ServerEndpointConfig&gt; result = <span class="keyword">new</span> HashSet&lt;&gt;();</div><div class="line">        ServerEndpointConfig config = ServerEndpointConfig.Builder.create(</div><div class="line">                SimpleEndpoint.class,</div><div class="line">                <span class="string">"/simple/viewmsg"</span></div><div class="line">        ).decoders(Arrays.asList(ViewMessage.class)).encoders(Arrays.asList(ViewMessage.class))</div><div class="line">                .build();</div><div class="line"></div><div class="line">        result.add(config);   </div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> Set&lt;Class&lt;?&gt;&gt; getAnnotatedEndpointClasses(Set&lt;Class&lt;?&gt;&gt; scanned) &#123;</div><div class="line">        <span class="comment">// Deploy all WebSocket endpoints defined by annotations in the examples</span></div><div class="line">        <span class="comment">// web application. Filter out all others to avoid issues when running</span></div><div class="line">        <span class="comment">// tests on Gump</span></div><div class="line">        Set&lt;Class&lt;?&gt;&gt; results = <span class="keyword">new</span> HashSet&lt;&gt;();       </div><div class="line">        results.add(EchoAnnotation.class);</div><div class="line">        <span class="keyword">return</span> results;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Client</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">  WebSocketContainer webSocketContainer = ContainerProvider.getWebSocketContainer();</div><div class="line">  Session session = webSocketContainer.connectToServer(</div><div class="line">    <span class="keyword">new</span> Endpoint() &#123;</div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onOpen</span><span class="params">(Session session, EndpointConfig config)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">          session.getBasicRemote().sendObject(<span class="keyword">new</span> ViewMessage(<span class="string">"test"</span>, <span class="string">"hello world"</span>));</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">          e.printStackTrace();</div><div class="line">        &#125; <span class="keyword">catch</span> (EncodeException e) &#123;</div><div class="line">          e.printStackTrace();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">      &#125;</div><div class="line">    &#125;,</div><div class="line">    ClientEndpointConfig.Builder.create()</div><div class="line">    .encoders(Arrays.asList(ViewMessage.class))</div><div class="line">    .decoders(Arrays.asList(ViewMessage.class))</div><div class="line">    .build(),</div><div class="line">    URI.create(<span class="string">"ws://localhost:9080/websocket/simple/viewmsg"</span>)</div><div class="line">  );</div><div class="line">  <span class="comment">//        session.getBasicRemote().sendObject();</span></div><div class="line">  Thread.sleep(<span class="number">5000L</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><em>注意</em> ：<code>encoders(..)</code>和<code>decoders(..)</code>会把参数里面的编解码类放到一个不可变的集合中，也就是说<strong>不能</strong>通过如下方式配置编解码类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ServerEndpointConfig config = ServerEndpointConfig.Builder.create(</div><div class="line">                SimpleEndpoint.class,</div><div class="line">                <span class="string">"/simple/viewmsg"</span></div><div class="line">        ).build();</div><div class="line">        config.getDecoders().add(ViewMessage.class);</div><div class="line">        config.getEncoders().add(ViewMessage.class);</div></pre></td></tr></table></figure>
+<h4 id="2-Tomcat-相关实现"><a href="#2-Tomcat-相关实现" class="headerlink" title="2.  Tomcat 相关实现"></a>2.  Tomcat 相关实现</h4><blockquote>
+<p>解码</p>
+</blockquote>
+<p>当链接建立时，我们一般会在<code>onOpen</code>方法中添加一个或多个<code>messageHandle</code>, 当消息来时，先解码成能适配<code>onMessage</code>方法参数值，然后再传入到<code>onMessage()</code>进行处理。</p>
+<p>注意事项:</p>
+<p>a). 消息处理类型之支持三种类型: <code>Text</code>, <code>Binary</code>, <code>Pong</code></p>
+<p>也就是说，如下配置会出错：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onOpen</span><span class="params">(Session session, EndpointConfig config)</span> </span>&#123;</div><div class="line"><span class="comment">//        session.addMessageHandler( (ViewMessage)message -&gt; &#123;</span></div><div class="line"><span class="comment">//            System.out.println(message.getType() + ":" + message.getMessage());</span></div><div class="line"><span class="comment">//        &#125;);</span></div><div class="line"></div><div class="line">        session.addMessageHandler(<span class="keyword">new</span> MessageHandler.Whole&lt;ViewMessage&gt;()&#123;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(ViewMessage message)</span> </span>&#123;</div><div class="line">                System.out.println(message.getType() + <span class="string">":"</span> + message.getMessage());</div><div class="line"></div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        session.addMessageHandler(<span class="keyword">new</span> MessageHandler.Whole&lt;String&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(String message)</span> </span>&#123;</div><div class="line">                System.out.println(message);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line"></div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>b).  <code>MessageHandle</code>原生支持的三种类型不会调用<code>decoder</code>方法,也就不用编写Decoder实现：<code>java.lang.String</code>, <code>java.nio.byteBuffer</code>, <code>javax.websocket.PongMesssage</code></p>
+<p>以下三种不用编写Decoder实现:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">session.addMessageHandler(<span class="keyword">new</span> MessageHandler.Whole&lt;String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(String message)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"x:"</span>+message);</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line">session.addMessageHandler(<span class="keyword">new</span> MessageHandler.Whole&lt;ByteBuffer&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(ByteBuffer message)</span> </span>&#123;</div><div class="line">        </div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line">session.addMessageHandler(<span class="keyword">new</span> MessageHandler.Whole&lt;PongMessage&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(PongMessage message)</span> </span>&#123;</div><div class="line">        </div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>相关源码分析：</p>
+<blockquote>
+<p>session.addMessageHandler(…)     from tomcat  WsSession.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addMessageHandler</span><span class="params">(MessageHandler listener)</span> </span>&#123;</div><div class="line">    Class&lt;?&gt; target = Util.getMessageType(listener);</div><div class="line">    doAddMessageHandler(target, listener);</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">addMessageHandler</span><span class="params">(Class&lt;T&gt; clazz, Partial&lt;T&gt; handler)</span></span></div><div class="line">        <span class="keyword">throws</span> IllegalStateException &#123;</div><div class="line">    doAddMessageHandler(clazz, handler);</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">addMessageHandler</span><span class="params">(Class&lt;T&gt; clazz, Whole&lt;T&gt; handler)</span></span></div><div class="line">        <span class="keyword">throws</span> IllegalStateException &#123;</div><div class="line">    doAddMessageHandler(clazz, handler);</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doAddMessageHandler</span><span class="params">(Class&lt;?&gt; target, MessageHandler listener)</span> </span>&#123;</div><div class="line">    checkState();</div><div class="line"></div><div class="line">    <span class="comment">// Message handlers that require decoders may map to text messages,</span></div><div class="line">    <span class="comment">// binary messages, both or neither.</span></div><div class="line"></div><div class="line">    <span class="comment">// The frame processing code expects binary message handlers to</span></div><div class="line">    <span class="comment">// accept ByteBuffer</span></div><div class="line"></div><div class="line">    <span class="comment">// Use the POJO message handler wrappers as they are designed to wrap</span></div><div class="line">    <span class="comment">// arbitrary objects with MessageHandlers and can wrap MessageHandlers</span></div><div class="line">    <span class="comment">// just as easily.</span></div><div class="line"></div><div class="line">    Set&lt;MessageHandlerResult&gt; mhResults = Util.getMessageHandlers(target, listener,</div><div class="line">            endpointConfig, <span class="keyword">this</span>);</div><div class="line"></div><div class="line">    <span class="keyword">for</span> (MessageHandlerResult mhResult : mhResults) &#123;</div><div class="line">        <span class="keyword">switch</span> (mhResult.getType()) &#123;</div><div class="line">        <span class="keyword">case</span> TEXT: &#123;</div><div class="line">            <span class="keyword">if</span> (textMessageHandler != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(sm.getString(<span class="string">"wsSession.duplicateHandlerText"</span>));</div><div class="line">            &#125;</div><div class="line">            textMessageHandler = mhResult.getHandler();</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">case</span> BINARY: &#123;</div><div class="line">            <span class="keyword">if</span> (binaryMessageHandler != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</div><div class="line">                        sm.getString(<span class="string">"wsSession.duplicateHandlerBinary"</span>));</div><div class="line">            &#125;</div><div class="line">            binaryMessageHandler = mhResult.getHandler();</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">case</span> PONG: &#123;</div><div class="line">            <span class="keyword">if</span> (pongMessageHandler != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(sm.getString(<span class="string">"wsSession.duplicateHandlerPong"</span>));</div><div class="line">            &#125;</div><div class="line">            MessageHandler handler = mhResult.getHandler();</div><div class="line">            <span class="keyword">if</span> (handler <span class="keyword">instanceof</span> MessageHandler.Whole&lt;?&gt;) &#123;</div><div class="line">                pongMessageHandler = (MessageHandler.Whole&lt;PongMessage&gt;) handler;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</div><div class="line">                        sm.getString(<span class="string">"wsSession.invalidHandlerTypePong"</span>));</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">default</span>: &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</div><div class="line">                    sm.getString(<span class="string">"wsSession.unknownHandlerType"</span>, listener, mhResult.getType()));</div><div class="line">        &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在上面<code>doAddMessageHandler</code> 中可以看到，对于消息处理器只有<code>TEXT</code>,<code>BINARY</code>,<code>PONG</code>, 而且对于同一种消息只能被加一次，否则 <code>throw IllegalArgumentException(sm.getString(&quot;wsSession.unknownHandlerType&quot;, listener, mhResult.getType()))</code></p>
+<p>对于应该使用哪种消息处理器在<code>Util.getMessageHandlers(..)</code> 实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> Set&lt;MessageHandlerResult&gt; <span class="title">getMessageHandlers</span><span class="params">(Class&lt;?&gt; target,</span></span></div><div class="line">            MessageHandler listener, EndpointConfig endpointConfig,</div><div class="line">            Session session) &#123;</div><div class="line"></div><div class="line">        <span class="comment">// Will never be more than 2 types</span></div><div class="line">        Set&lt;MessageHandlerResult&gt; results = <span class="keyword">new</span> HashSet&lt;&gt;(<span class="number">2</span>);</div><div class="line"></div><div class="line">        <span class="comment">// Simple cases - handlers already accepts one of the types expected by</span></div><div class="line">        <span class="comment">// the frame handling code</span></div><div class="line">        <span class="keyword">if</span> (String.class.isAssignableFrom(target)) &#123;</div><div class="line">            MessageHandlerResult result =</div><div class="line">                    <span class="keyword">new</span> MessageHandlerResult(listener,</div><div class="line">                            MessageHandlerResultType.TEXT);</div><div class="line">            results.add(result);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ByteBuffer.class.isAssignableFrom(target)) &#123;</div><div class="line">            MessageHandlerResult result =</div><div class="line">                    <span class="keyword">new</span> MessageHandlerResult(listener,</div><div class="line">                            MessageHandlerResultType.BINARY);</div><div class="line">            results.add(result);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (PongMessage.class.isAssignableFrom(target)) &#123;</div><div class="line">            MessageHandlerResult result =</div><div class="line">                    <span class="keyword">new</span> MessageHandlerResult(listener,</div><div class="line">                            MessageHandlerResultType.PONG);</div><div class="line">            results.add(result);</div><div class="line">        <span class="comment">// Handler needs wrapping and optional decoder to convert it to one of</span></div><div class="line">        <span class="comment">// the types expected by the frame handling code</span></div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">byte</span>[].class.isAssignableFrom(target)) &#123;</div><div class="line">            <span class="keyword">boolean</span> whole = MessageHandler.Whole.class.isAssignableFrom(listener.getClass());</div><div class="line">            MessageHandlerResult result = <span class="keyword">new</span> MessageHandlerResult(</div><div class="line">                    whole ? <span class="keyword">new</span> PojoMessageHandlerWholeBinary(listener,</div><div class="line">                                    getOnMessageMethod(listener), session,</div><div class="line">                                    endpointConfig, matchDecoders(target, endpointConfig, <span class="keyword">true</span>),</div><div class="line">                                    <span class="keyword">new</span> Object[<span class="number">1</span>], <span class="number">0</span>, <span class="keyword">true</span>, -<span class="number">1</span>, <span class="keyword">false</span>, -<span class="number">1</span>) :</div><div class="line">                            <span class="keyword">new</span> PojoMessageHandlerPartialBinary(listener,</div><div class="line">                                    getOnMessagePartialMethod(listener), session,</div><div class="line">                                    <span class="keyword">new</span> Object[<span class="number">2</span>], <span class="number">0</span>, <span class="keyword">true</span>, <span class="number">1</span>, -<span class="number">1</span>, -<span class="number">1</span>),</div><div class="line">                    MessageHandlerResultType.BINARY);</div><div class="line">            results.add(result);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (InputStream.class.isAssignableFrom(target)) &#123;</div><div class="line">            MessageHandlerResult result = <span class="keyword">new</span> MessageHandlerResult(</div><div class="line">                    <span class="keyword">new</span> PojoMessageHandlerWholeBinary(listener,</div><div class="line">                            getOnMessageMethod(listener), session,</div><div class="line">                            endpointConfig, matchDecoders(target, endpointConfig, <span class="keyword">true</span>),</div><div class="line">                            <span class="keyword">new</span> Object[<span class="number">1</span>], <span class="number">0</span>, <span class="keyword">true</span>, -<span class="number">1</span>, <span class="keyword">true</span>, -<span class="number">1</span>),</div><div class="line">                    MessageHandlerResultType.BINARY);</div><div class="line">            results.add(result);</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Reader.class.isAssignableFrom(target)) &#123;</div><div class="line">            MessageHandlerResult result = <span class="keyword">new</span> MessageHandlerResult(</div><div class="line">                    <span class="keyword">new</span> PojoMessageHandlerWholeText(listener,</div><div class="line">                            getOnMessageMethod(listener), session,</div><div class="line">                            endpointConfig, matchDecoders(target, endpointConfig, <span class="keyword">false</span>),</div><div class="line">                            <span class="keyword">new</span> Object[<span class="number">1</span>], <span class="number">0</span>, <span class="keyword">true</span>, -<span class="number">1</span>, -<span class="number">1</span>),</div><div class="line">                    MessageHandlerResultType.TEXT);</div><div class="line">            results.add(result);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">// Handler needs wrapping and requires decoder to convert it to one</span></div><div class="line">            <span class="comment">// of the types expected by the frame handling code</span></div><div class="line">            DecoderMatch decoderMatch = matchDecoders(target, endpointConfig);</div><div class="line">            Method m = getOnMessageMethod(listener);</div><div class="line">            <span class="keyword">if</span> (decoderMatch.getBinaryDecoders().size() &gt; <span class="number">0</span>) &#123;</div><div class="line">                MessageHandlerResult result = <span class="keyword">new</span> MessageHandlerResult(</div><div class="line">                        <span class="keyword">new</span> PojoMessageHandlerWholeBinary(listener, m, session,</div><div class="line">                                endpointConfig,</div><div class="line">                                decoderMatch.getBinaryDecoders(), <span class="keyword">new</span> Object[<span class="number">1</span>],</div><div class="line">                                <span class="number">0</span>, <span class="keyword">false</span>, -<span class="number">1</span>, <span class="keyword">false</span>, -<span class="number">1</span>),</div><div class="line">                                MessageHandlerResultType.BINARY);</div><div class="line">                results.add(result);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (decoderMatch.getTextDecoders().size() &gt; <span class="number">0</span>) &#123;</div><div class="line">                MessageHandlerResult result = <span class="keyword">new</span> MessageHandlerResult(</div><div class="line">                        <span class="keyword">new</span> PojoMessageHandlerWholeText(listener, m, session,</div><div class="line">                                endpointConfig,</div><div class="line">                                decoderMatch.getTextDecoders(), <span class="keyword">new</span> Object[<span class="number">1</span>],</div><div class="line">                                <span class="number">0</span>, <span class="keyword">false</span>, -<span class="number">1</span>, -<span class="number">1</span>),</div><div class="line">                                MessageHandlerResultType.TEXT);</div><div class="line">                results.add(result);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (results.size() == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(</div><div class="line">                    sm.getString(<span class="string">"wsSession.unknownHandler"</span>, listener, target));</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> results;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>在上面代码中可以看到，</p>
+<ul>
+<li>如果<code>MessageHandler</code>的参数类型是<code>String</code>, <code>ByteBuffer</code>, <code>PongMessage</code>, 框架会支持掉，不用编写Decoder;</li>
+<li>如果<code>MessageHandler</code>的参数类型是<code>byte[]</code>,根据<code>MessageHandler</code>是否<code>Whole</code>子接口来判断使用wholeBinary类型消息处理器还是PartialBinary处理器,要编写Decoder实现<code>javax.websocket.Decoder.Binary</code> 或者<code>java.websocket.Decoder.BinaryStream</code>；</li>
+<li>如果<code>MessageHandler</code>的参数类型是<code>InputStream</code> 那就只能是WholeBinary的消息处理器，要编写Decoder实现<code>javax.websocket.Decoder.Binary</code> 或者<code>java.websocket.Decoder.BinaryStream</code>；</li>
+<li>如果<code>MessageHandler</code>的参数类型是<code>Reader</code>，那就只能是WholeText的消息处理器,要编写Decoder实现<code>javax.websocket.Decoder.Text</code>或者<code>java.websocket.Decoder.TextStream</code>；</li>
+<li>如果是其他类型，所有的decoders中找到匹配的，需要编写对于的decoder。</li>
+</ul>
+<blockquote>
+<p>编码encoder</p>
+</blockquote>
+<p>当向外发送消息时，需要进行编码，规则如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendObject</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> IOException, EncodeException </span>&#123;</div><div class="line">    <span class="keyword">if</span> (obj == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(sm.getString(<span class="string">"wsRemoteEndpoint.nullData"</span>));</div><div class="line">    &#125;</div><div class="line">    <span class="comment">/*</span></div><div class="line">     * Note that the implementation will convert primitives and their object</div><div class="line">     * equivalents by default but that users are free to specify their own</div><div class="line">     * encoders and decoders for this if they wish.</div><div class="line">     */</div><div class="line">    Encoder encoder = findEncoder(obj);</div><div class="line">    <span class="keyword">if</span> (encoder == <span class="keyword">null</span> &amp;&amp; Util.isPrimitive(obj.getClass())) &#123;</div><div class="line">        String msg = obj.toString();</div><div class="line">        sendString(msg);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (encoder == <span class="keyword">null</span> &amp;&amp; <span class="keyword">byte</span>[].class.isAssignableFrom(obj.getClass())) &#123;</div><div class="line">        ByteBuffer msg = ByteBuffer.wrap((<span class="keyword">byte</span>[]) obj);</div><div class="line">        sendBytes(msg);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (encoder <span class="keyword">instanceof</span> Encoder.Text) &#123;</div><div class="line">        String msg = ((Encoder.Text) encoder).encode(obj);</div><div class="line">        sendString(msg);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (encoder <span class="keyword">instanceof</span> Encoder.TextStream) &#123;</div><div class="line">        <span class="keyword">try</span> (Writer w = getSendWriter()) &#123;</div><div class="line">            ((Encoder.TextStream) encoder).encode(obj, w);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (encoder <span class="keyword">instanceof</span> Encoder.Binary) &#123;</div><div class="line">        ByteBuffer msg = ((Encoder.Binary) encoder).encode(obj);</div><div class="line">        sendBytes(msg);</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (encoder <span class="keyword">instanceof</span> Encoder.BinaryStream) &#123;</div><div class="line">        <span class="keyword">try</span> (OutputStream os = getSendStream()) &#123;</div><div class="line">            ((Encoder.BinaryStream) encoder).encode(obj, os);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> EncodeException(obj, sm.getString(</div><div class="line">                <span class="string">"wsRemoteEndpoint.noEncoder"</span>, obj.getClass()));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>如果没有找到Encoder，但是是原生数据类型，编码成字符串处理；</li>
+<li>如果没有找到Encoder，但是是<code>byte[]</code>，编码成ByteBuffer处理；</li>
+<li>如果找到Encoder, 则调用相应的<code>decode method</code>处理。</li>
+</ul>
+
+    </div>
+    <p class="post-meta">
+        <span class="post-cat">分类：
+            <a class="cat-link" href="/categories/WebSocket/">WebSocket</a>
+        </span>
+        <span class="post-tags">
+            标签：
+            
+    
+        <a href="/tags/websocket/" title="websocket">websocket</a>
+    
+
+        </span>
+    </p>
+</article>
+<div class="article-share clearfix text-center">
+    <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div>
+
+<!-- 上一篇/下一篇 -->
+
+<div class="article-nav clearfix">
+    
+    <span class="prev fl">
+        上一篇<br >
+        <a href="javascript: void(0);">没有上一篇了</a>
+    </span>
+    
+
+    
+    <span class="next fr">
+        下一篇<br >
+        <a href="/2017/07/05/lucene/firstdemo/">
+            
+                无标题
+            
+        </a>
+    </span>
+    
+</div>
+
+<!-- 文章评论 -->
+
+            </div>
+
+        </section>
+        <!-- 侧栏部分 -->
+<aside class="sidebar">
+    <section class="widget">
+        <h3 class="widget-hd"><strong>文章分类</strong></h3>
+        <!-- 文章分类 -->
+<ul class="widget-bd">
+    
+    <li>
+        <a href="/categories/WebSocket/">WebSocket</a>
+        <span class="badge">(3)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/MyBatis/">MyBatis</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-hd"><strong>热门标签</strong></h3>
+        <!-- 文章标签 -->
+<div class="widget-bd tag-wrap">
+  
+    <a class="tag-item" href="/tags/webscoket/" title="webscoket">webscoket (2)</a>
+  
+    <a class="tag-item" href="/tags/Mybatis-入门/" title="Mybatis 入门">Mybatis 入门 (1)</a>
+  
+    <a class="tag-item" href="/tags/websocket/" title="websocket">websocket (1)</a>
+  
+</div>
+    </section>
+    
+
+    
+    <!-- 我的微博 -->
+    <section class="widget">
+        <h3 class="widget-hd"><strong>我的微博</strong></h3>
+        <div class="widget-bd" style="position: relative;">
+  <div id="myWeiboLoading" class="text-center" style="position:absolute;top:0;left:0;right:0;bottom:0;line-height:50px;font-size:12px;background-color:#fff;z-index:9;">微博加载中...</div>
+  <iframe id="myWeibo" width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=4&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2433664154&verifier=66842d60&dpc=1"></iframe>
+  <script>
+  (function () {
+    var oMyWeibo = document.getElementById('myWeibo');
+    var oMyWeiboLoading = document.getElementById('myWeiboLoading');
+    var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+    var timer = null;
+    if (isIE) {
+      oMyWeibo.onreadystatechange = function(){
+        if(oMyWeibo.readyState === 'loaded' || oMyWeibo.readyState === 'complete'){
+          timer = setTimeout(function () {
+            oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+            timer = null;
+          }, 300);
+        }
+      };
+    } else {
+      oMyWeibo.onload = function () {
+        timer = setTimeout(function () {
+          oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+          timer = null;
+        }, 300);
+      };
+    }
+  })();
+  </script>
+</div>
+    </section>
+    
+
+    
+</aside>
+<!-- / 侧栏部分 -->
+    </div>
+
+    <!-- 博客底部 -->
+    <footer class="footer">
+    &copy;
+    
+        2016-2017
+    
+
+    <a href="/">鄂ICP备15016859号-1</a>
+    
+</footer>
+<div class="back-to-top" id="JELON__backToTop" title="返回顶部">返回顶部</div>
+<!-- 添加百度自动推送 -->
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+    <!--博客js脚本 -->
+    <!-- 这里放网站js脚本 -->
+<script src="/js/main.js"></script>
+
+</body>
+</html>
