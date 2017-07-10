@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" >
     <meta name="baidu-site-verification" content="dIcXMeY8Ya" />
     
-    <title>Quan Blogs</title>
+    <title>Lucene Hello World | Quan Blogs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" >
     <meta name="keywords" content="wuquan" >
     <meta name="description" content="Quan个人前端小站" >
@@ -123,22 +123,52 @@
 <!-- 文章 -->
 <article class="post article">
     <header class="text-center">
-        <h3 class="post-title"><span></span></h3>
+        <h3 class="post-title"><span>Lucene Hello World</span></h3>
     </header>
     <p class="post-meta text-center">
         Quan 发表于
         <time datetime="2017-07-05T14:04:45.115Z">2017-07-05</time>
     </p>
     <div class="post-content">
-        
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Lucene是一个全文搜索框架，而不是应用产品，它只是提供了一种工具让你实现这些产品。主要由3个部分组成：索引部分，分词部分，搜索部分。<br><a id="more"></a></p>
+<p><strong>相关概念</strong></p>
+<ul>
+<li>Analyzer是分析器，它的作用是把一个字符串按某种规则划分成一个个词语，并去除其中的无效词语，这里说的无效词语是指英文中的“of”、“the”，中文中的“的”、“地”等词语，这些词语在文章中大量出现，但是本身不包含什么关键信息，去掉有利于缩小索引文件、提高效率、提高命中率。分词的规则千变万化，但目的只有一个：按语义划分。这点在英文中比较容易实现，因为英文本身就是以单词为单位的，已经用空格分开；而中文则必须以某种方法将连成一片的句子划分成一个个词语。</li>
+</ul>
+<ul>
+<li>Document是指用户提供的一条条记录，它们可以是文本文件，字符串或者数据库的一条记录等等，一条记录经过索引之后，就是以一个Document的形式存储在索引文件中的。用户进行搜索，也是以Document列表的形式返回。</li>
+</ul>
+<ul>
+<li>Field是指Document的域，一个Document可以有多个域。例如一篇文章可以包含“标题”、“正文”、“最后修改时间”等信息域，这些信息域就是通过Field在Document中存储的。Field有两个属性可选：存储和索引。通过存储属性你可以控制是否对这个Field进行存储；通过索引属性你可以控制是否对该Field进行索引。这看起来似乎有些废话，事实上对这两个属性的正确组合很重要，下面举例说明：还是以刚才的文章为例子，我们需要对标题和正文进行全文搜索，所以我们要把索引属性设置为真，同时我们希望能直接从搜索结果中提取文章标题，所以我们把标题域的存储属性设置为真，但是由于正文域太大了，我们为了缩小索引文件大小，将正文域的存储属性设置为假，当需要时再直接读取文件；我们只是希望能从搜索解果中提取最后修改时间，不需要对它进行搜索，所以我们把最后修改时间域的存储属性设置为真，索引属性设置为假。上面的三个域涵盖了两个属性的三种组合，还有一种全为假的没有用到，事实上Field不允许你那么设置，因为既不存储又不索引的域是没有意义的。</li>
+</ul>
+<ul>
+<li>term是搜索的最小单位，它表示文档的一个词语，term由两部分组成：它表示的词语和这个词语所出现的field。</li>
+<li>tocken是term的一次出现，它包含term文本和相应的起止偏移，以及一个类型字符串。一句话中可以出现多次相同的词语，它们都用同一个term表示，但是用不同的tocken，每个tocken标记该词语出现的地方。</li>
+<li>Segment是存储索引的文件，它可以有多个，因为 添加索引时并不是每个document都马上添加到同一个索引文件，它们首先被写入到不同的小文件，然后再合并成一个大索引文件，这里每个小文件都是一个segment。</li>
+</ul>
+<h3 id="Hello-world"><a href="#Hello-world" class="headerlink" title="Hello world"></a>Hello world</h3><p>加入依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>6.6.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-queryparser<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>6.6.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-demo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>6.6.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>创建索引以及合并索引</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testCreateIndex</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!Files.exists(path)) &#123;</div><div class="line">        Files.createDirectory(path);</div><div class="line">    &#125;</div><div class="line">    Directory dir = FSDirectory.open(path);</div><div class="line">    Analyzer analyzer = <span class="keyword">new</span> StandardAnalyzer();</div><div class="line">    IndexWriterConfig iwc = <span class="keyword">new</span> IndexWriterConfig(analyzer);</div><div class="line"></div><div class="line">    iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);</div><div class="line">    Date start = <span class="keyword">new</span> Date();</div><div class="line">    IndexWriter writer = <span class="keyword">new</span> IndexWriter(dir, iwc);</div><div class="line"></div><div class="line">    Document doc = <span class="keyword">new</span> Document();</div><div class="line">    doc.add(<span class="keyword">new</span> StringField(<span class="string">"name"</span>, <span class="string">"zhangsan"</span>, Field.Store.YES));</div><div class="line">    doc.add(<span class="keyword">new</span> IntRange(<span class="string">"age"</span>, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">10</span>, <span class="number">20</span>&#125;, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">60</span>, <span class="number">80</span>&#125;));</div><div class="line">    doc.add(<span class="keyword">new</span> TextField(<span class="string">"content"</span>, <span class="string">"chinahubeiwuhangjianlifenyanhuishizhangsanok zhangsan"</span>, Field.Store.NO));</div><div class="line">    writer.addDocument(doc);</div><div class="line"></div><div class="line">    Document doc1 = <span class="keyword">new</span> Document();</div><div class="line">    doc1.add(<span class="keyword">new</span> StringField(<span class="string">"name"</span>, <span class="string">"lisi"</span>, Field.Store.YES));</div><div class="line">    doc1.add(<span class="keyword">new</span> IntRange(<span class="string">"age"</span>, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">10</span>, <span class="number">20</span>&#125;, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">60</span>, <span class="number">80</span>&#125;));</div><div class="line">    doc1.add(<span class="keyword">new</span> TextField(<span class="string">"content"</span>, <span class="string">"chinahubeiwuhangjianlifenyanhuishilisiok"</span>, Field.Store.NO));</div><div class="line">    writer.addDocument(doc1);</div><div class="line"></div><div class="line">    writer.close();</div><div class="line">    Date end = <span class="keyword">new</span> Date();</div><div class="line">    System.out.println(end.getTime() - start.getTime() + <span class="string">" total milliseconds"</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMerge</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    Directory dir = FSDirectory.open(path);</div><div class="line">    Analyzer analyzer = <span class="keyword">new</span> StandardAnalyzer();</div><div class="line">    IndexWriterConfig iwc = <span class="keyword">new</span> IndexWriterConfig(analyzer);</div><div class="line"></div><div class="line">    iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);</div><div class="line">    IndexWriter writer = <span class="keyword">new</span> IndexWriter(dir, iwc);</div><div class="line"></div><div class="line">    writer.forceMerge(<span class="number">1</span>);</div><div class="line"></div><div class="line">    writer.close();</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Search data</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSearch</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        IndexReader reader = DirectoryReader.open(FSDirectory.open(path));</div><div class="line">        IndexSearcher searcher = <span class="keyword">new</span> IndexSearcher(reader);</div><div class="line">        Analyzer analyzer = <span class="keyword">new</span> StandardAnalyzer();</div><div class="line"></div><div class="line">        QueryParser parser = <span class="keyword">new</span> QueryParser(<span class="string">"name"</span>, analyzer);</div><div class="line"></div><div class="line"><span class="comment">//        Query query = parser.parse("name: lisi");</span></div><div class="line">        Query query = parser.parse(<span class="string">"zhangsan"</span>);</div><div class="line"></div><div class="line"></div><div class="line">        TopDocs topDocs = searcher.search(query, <span class="number">3</span>);</div><div class="line"></div><div class="line"></div><div class="line">        <span class="keyword">for</span> (ScoreDoc scoreDoc : topDocs.scoreDocs) &#123;</div><div class="line">            Document document = searcher.doc(scoreDoc.doc);</div><div class="line">            System.out.println(document.toString());</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        reader.close();</div><div class="line"></div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+
     </div>
     <p class="post-meta">
         <span class="post-cat">分类：
-            
+            <a class="cat-link" href="/categories/lucene/">lucene</a>
         </span>
         <span class="post-tags">
             标签：
             
+    
+        <a href="/tags/lucene/" title="lucene">lucene</a>
+    
+
         </span>
     </p>
 </article>
@@ -186,13 +216,18 @@
 <ul class="widget-bd">
     
     <li>
+        <a href="/categories/WebSocket/">WebSocket</a>
+        <span class="badge">(3)</span>
+    </li>
+    
+    <li>
         <a href="/categories/MyBatis/">MyBatis</a>
         <span class="badge">(1)</span>
     </li>
     
     <li>
-        <a href="/categories/WebSocket/">WebSocket</a>
-        <span class="badge">(3)</span>
+        <a href="/categories/lucene/">lucene</a>
+        <span class="badge">(1)</span>
     </li>
     
 </ul>
@@ -204,9 +239,11 @@
         <!-- 文章标签 -->
 <div class="widget-bd tag-wrap">
   
+    <a class="tag-item" href="/tags/websocket/" title="websocket">websocket (3)</a>
+  
     <a class="tag-item" href="/tags/Mybatis-入门/" title="Mybatis 入门">Mybatis 入门 (1)</a>
   
-    <a class="tag-item" href="/tags/websocket/" title="websocket">websocket (3)</a>
+    <a class="tag-item" href="/tags/lucene/" title="lucene">lucene (1)</a>
   
 </div>
     </section>
