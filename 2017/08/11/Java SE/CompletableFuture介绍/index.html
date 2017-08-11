@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" >
+    <meta name="baidu-site-verification" content="dIcXMeY8Ya" />
+    
+    <title>Java CompletableFuture介绍 | Quan Blogs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" >
+    <meta name="keywords" content="wuquan" >
+    <meta name="description" content="Quan个人前端小站" >
+
+    
+    <link rel="alternative" href="/atom.xml" title="Quan Blogs" type="application/atom+xml" >
+    
+    
+    <link rel="shortcut icon" href="/favicon.ico" >
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <!--[if lt IE 9]>
+    <script src="/js/html5.js"></script>
+    <![endif]-->
+    
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?fd459238242776d173cdc64918fb32f2";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+    
+</head>
+
+<body class="home">
+    <!--[if lt IE 9]>
+    <div class="browsehappy">
+        当前网页 <strong>不支持</strong>
+        你正在使用的浏览器. 为了正常的访问, 请 <a href="http://browsehappy.com/">升级你的浏览器</a>.
+    </div>
+    <![endif]-->
+
+    <!-- 博客头部 -->
+    <header class="header">
+    <section class="container header-main">
+        <div class="logo">
+            <a href="/">
+                <div class="cover">
+                    <span class="name">Quan Blogs</span>
+                    <span class="description">Quan</span>
+                </div>
+            </a>
+        </div>
+        <div class="dropnav icon-paragraph-justify" id="JELON__btnDropNav"></div>
+        <ul class="menu hidden" id="JELON__menu">
+            
+            <li rel="/2017/08/11/Java SE/CompletableFuture介绍/index.html" class="item ">
+                <a href="/" title="首页" class="icon-home">&nbsp;首页</a>
+            </li>
+            
+            <li rel="/2017/08/11/Java SE/CompletableFuture介绍/index.html" class="item ">
+                <a href="/lab/" title="计划" class="icon-lab">&nbsp;计划</a>
+            </li>
+            
+            <li rel="/2017/08/11/Java SE/CompletableFuture介绍/index.html" class="item ">
+                <a href="/about/" title="关于" class="icon-about">&nbsp;关于</a>
+            </li>
+            
+            <li rel="/2017/08/11/Java SE/CompletableFuture介绍/index.html" class="item ">
+                <a href="/comment/" title="留言" class="icon-comment">&nbsp;留言</a>
+            </li>
+            
+        </ul>
+        <div class="profile clearfix">
+            <div class="feeds fl">
+                
+                
+                <p class="links">
+                    
+                        <a href="“#”" target="_blank">Coding</a>
+                        |
+                    
+                        <a href="#" target="_blank">Github</a>
+                        |
+                    
+                        <a href="#" target="_blank">百度统计</a>
+                        
+                    
+                </p>
+                <p class="sns">
+                    
+                        <a href="http://weibo.com/" class="sinaweibo" target="_blank"><b>■</b> 新浪微博</a>
+                    
+                        <a href="https://www.facebook.com/profile.php?id=100011855760219&amp;ref=bookmarks" class="qqweibo" target="_blank"><b>■</b> Facebook</a>
+                    
+                    <a href="javascript: void(0);" class="wechat">
+                        <b>■</b>
+                        公众号
+                        <span class="popover">
+                            <img src="/img/wechat_quan.jpg" width="120" height="120" alt="我的微信订阅号">
+                            <i class="arrow"></i>
+                        </span>
+                    </a>
+                </p>
+                
+            </div>
+            <div class="avatar fr">
+                <img src="/img/jelon.jpg" alt="avatar" title="Jelon" >
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- 博客正文 -->
+    <div class="container body clearfix">
+        <section class="content">
+            <div class="content-main widget">
+                <!-- 文章页 -->
+<!-- 文章 -->
+<article class="post article">
+    <header class="text-center">
+        <h3 class="post-title"><span>Java CompletableFuture介绍</span></h3>
+    </header>
+    <p class="post-meta text-center">
+        Quan 发表于
+        <time datetime="2017-08-11T07:19:06.406Z">2017-08-11</time>
+    </p>
+    <div class="post-content">
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><p>​    Java8提供了一种函数风格的异步和事件驱动编程模型CompletableFuture，该模型不同于以往Java版本，不会造成堵塞Blocking。过去，Java 5并发包主要聚焦于异步任务处理，其模型特点是基于一个生产者线程，不断地创造任务，通过一个堵塞Blocking队列传递给任务的消费者，这个模型在java 7和Java 8以后使用了另外一种任务执行模型，同时将一个任务的数据分解到子集中，这些子集能够分别被同样的子任务独立地处理。这种风格后面的基础库包就是 fork/join框架。</p>
+<a id="more"></a>
+<p>　　fork/join框架允许程序员指定一个数据集如何被切分多个子任务，将子任务提交一个标准默认的线程池：通用的ForkJoinPool。在Java 8中fork/join并行还可以通过并行流机制访问获得，但是这种方式的并行处理是有成本的和前提条件的：首先，元素处理必须能够独立进行，其次，数据集必须足够大，每个元素处理的消耗成本需要足够高，因为设置与启动fork/join框架本身也有一定的消耗，这些消耗相对于数据集合中每个元素处理的成本来说可以忽略不计，否则就不是很划算。</p>
+<p>　　Java 8的CompletableFuture背后也是依靠fork/join框架启动新的线程实现异步与并发的，一般情况下，我们将一个任务放到另外一个线程执行，可能就无需等待那个线程处理完成的结果，而是直接在主线程中返回完成，但是有一些业务恰是需要等待新启动的线程中任务完成，然后和当前主线程中的处理进行合并再处理，比如下面代码我们需要在另外一个线程进行很长时间的运行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">CompletableFuture  futureCount = CompletableFuture.supplyAsync (  </div><div class="line">      ()   -&gt;   &#123;  </div><div class="line">          <span class="keyword">try</span>   &#123;  </div><div class="line">              <span class="comment">// Simulate long running task  模拟长时间运行任务</span></div><div class="line">              Thread . sleep ( <span class="number">5000</span> );  </div><div class="line">          &#125;   <span class="keyword">catch</span>   ( InterruptedException  e )   &#123;   &#125;  </div><div class="line">          <span class="keyword">return</span>   <span class="number">10</span> ;  </div><div class="line">      &#125;);  </div><div class="line"> <span class="comment">//现在可以同时在当前主线程做其他事情，不用等待上面长时间运行任务结束</span></div></pre></td></tr></table></figure>
+<p>   当对CompletableFuture的实力进行.get()方法调用时，在计算过程中任何exception将被抛出。</p>
+<p>创建和获得CompletableFuture有下面四个方法，主要是supplyAsunc和runAsync两种，后者提供的方法参数必须是线程的Runnable，因为Runnable是不会返回任何结果，所以，如果你需要异步处理并返回结果，应该使用Supplier<u>。</u></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> &lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">supplyAsync</span><span class="params">(Supplier&lt;U&gt; supplier)</span></span>;</div><div class="line"><span class="keyword">static</span> &lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">supplyAsync</span><span class="params">(Supplier&lt;U&gt; supplier, Executor executor)</span></span>;</div><div class="line"><span class="function"><span class="keyword">static</span> CompletableFuture&lt;Void&gt; <span class="title">runAsync</span><span class="params">(Runnable runnable)</span></span>;</div><div class="line"><span class="function"><span class="keyword">static</span> CompletableFuture&lt;Void&gt; <span class="title">runAsync</span><span class="params">(Runnable runnable, Executor executor)</span></span>;</div></pre></td></tr></table></figure>
+<p> 我们需要将长时间任务放入supplyAsync方法体中，传统写法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">final</span> CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(<span class="keyword">new</span> Supplier&lt;String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//...长时间运行...</span></div><div class="line">        <span class="keyword">return</span> <span class="string">"42"</span>;</div><div class="line">    &#125;</div><div class="line">&#125;, executor);</div></pre></td></tr></table></figure>
+<p> 使用java8的lambda则是如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;</div><div class="line">    <span class="comment">//...长时间运行...</span></div><div class="line">    <span class="keyword">return</span> <span class="string">"42"</span>;</div><div class="line">&#125;, executor);</div></pre></td></tr></table></figure>
+<p> 甚至简化如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; longRunningTask(params), executor);</div></pre></td></tr></table></figure>
+<h4 id="thenApply用法"><a href="#thenApply用法" class="headerlink" title="thenApply用法"></a>thenApply用法</h4><p>   从函数编程角度看，CompletableFuture 其实是一个monad和一个functor，如果你有Javacript编程经验，经常会返回或注册一个异步的callback回调函数，这样，我们就不必一直堵塞等待其处理完成再进行其他处理，这也是一种Future概念，意思是：当结果长时间计算出来以后，在结果上运行这个函数。我们可以运行多个这样的回调性质的函数，这可以使用CompletableFuture的 thenApply()方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">thenApply</span><span class="params">(Function&lt;? <span class="keyword">super</span> T,? extends U&gt; fn)</span></span>;</div><div class="line">&lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">thenApplyAsync</span><span class="params">(Function&lt;? <span class="keyword">super</span> T,? extends U&gt; fn)</span></span>;</div><div class="line">&lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">thenApplyAsync</span><span class="params">(Function&lt;? <span class="keyword">super</span> T,? extends U&gt; fn, Executor executor)</span></span>;</div></pre></td></tr></table></figure>
+<p>第一个没有Async的thenApply方法是指在future完成的当前线程应用参数中函数，而后面两个带Async的方法则是在不同线程池异步地应用参数中的函数。</p>
+<p> 我们以字符串转换为整数功能为例，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CompletableFuture&lt;Double&gt; f3 =</div><div class="line">   f1.thenApply(Integer::parseInt).thenApply(r -&gt; r * r * Math.PI);</div></pre></td></tr></table></figure>
+<p>这里定义了两个theApply转换功能，第一次是从字符串转换到Integer，然后再到Double。这些转换不是立即执行也不会堵塞，只是简单地记住，只有当f1完成以后才会执行这两个转换，如果一些转换动作很花费时间，你可以使用线程池异步处理。</p>
+<h4 id="thenAccept-thenRun用法"><a href="#thenAccept-thenRun用法" class="headerlink" title="thenAccept/thenRun用法"></a>thenAccept/thenRun用法</h4><p> 在长时间计算完成后可以经过上面转换，但是在最后阶段有两个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function">CompletableFuture&lt;Void&gt; <span class="title">thenAccept</span><span class="params">(Consumer&lt;? <span class="keyword">super</span> T&gt; block)</span></span>;</div><div class="line"><span class="function">CompletableFuture&lt;Void&gt; <span class="title">thenRun</span><span class="params">(Runnable action)</span></span>;</div></pre></td></tr></table></figure>
+<p>thenAccept()提供了final最后的值，而thenRun执行Runnable就不会返回任何计算好的值或结果了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">future.thenAcceptAsync(dbl -&gt; log.debug(<span class="string">"Result: &#123;&#125;"</span>, dbl), executor);</div><div class="line">log.debug(<span class="string">"Continuing"</span>);</div></pre></td></tr></table></figure>
+<p> 这两个方法是不会堵塞的，即使没有指定executor，可以将它们看成是对未来结果的监听者。</p>
+<h4 id="thenCompose-用法"><a href="#thenCompose-用法" class="headerlink" title="thenCompose()用法"></a>thenCompose()用法</h4><p>CompletableFuture的异步处理非常不错，有时，你需要在一个future值结构运行某个函数，但是这个函数也是返回某种future，也就是说是两个future彼此依赖串联在一起，它类似于Scala的中的flatMap。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;U&gt; <span class="function">CompletableFuture&lt;U&gt; <span class="title">thenCompose</span><span class="params">(Function&lt;? <span class="keyword">super</span> T,CompletableFuture&lt;U&gt;&gt; fn)</span></span>;</div></pre></td></tr></table></figure>
+<p> 下面是比较thenCompose和thenApply的不同案例（类似于scala的map和flatMap的不同）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//thenApply</span></div><div class="line">CompletableFuture&lt;Document&gt; docFuture = <span class="comment">//...</span></div><div class="line">CompletableFuture&lt;CompletableFuture&lt;Double&gt;&gt; f =</div><div class="line">    docFuture.thenApply(<span class="keyword">this</span>::calculateRelevance);</div><div class="line"></div><div class="line"><span class="comment">//thenCompose</span></div><div class="line">CompletableFuture&lt;Double&gt; relevanceFuture =</div><div class="line">    docFuture.thenCompose(<span class="keyword">this</span>::calculateRelevance);</div><div class="line"><span class="function"><span class="keyword">private</span> CompletableFuture&lt;Double&gt; <span class="title">calculateRelevance</span><span class="params">(Document doc)</span>  <span class="comment">//...</span></span></div></pre></td></tr></table></figure>
+<p> thenCompose()是能够建立健壮 异步管道pipeline的方法，没有任何堵塞或中间步骤。</p>
+<h4 id="thenCombine-用法"><a href="#thenCombine-用法" class="headerlink" title="thenCombine()用法"></a>thenCombine()用法</h4><p>上面thenCompose()是用于多个彼此依赖的futrue进行串联起来，而thenCombine则是并联起两个独立的future，注意，这些future都是在长时间计算都完成以后。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;U,V&gt; <span class="function">CompletableFuture&lt;V&gt; <span class="title">thenCombine</span><span class="params">(CompletableFuture&lt;? extends U&gt; other, BiFunction&lt;? <span class="keyword">super</span> T,? <span class="keyword">super</span> U,? extends V&gt; fn)</span></span></div></pre></td></tr></table></figure>
+<p>假设你有两个CompletableFuture，一个是加载Customer，而另外一个是加载最近商店Shop，它们两个都彼此独立，但是当都加载计算完毕以后，你需要使用它们的值计算路径：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">CompletableFuture&lt;Customer&gt; customerFuture = loadCustomerDetails(<span class="number">123</span>);</div><div class="line">CompletableFuture&lt;Shop&gt; shopFuture = closestShop();</div><div class="line">CompletableFuture&lt;Route&gt; routeFuture =</div><div class="line">    customerFuture.thenCombine(shopFuture, (cust, shop) -&gt; findRoute(cust, shop));</div><div class="line"> </div><div class="line"><span class="comment">//...</span></div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">private</span> Route <span class="title">findRoute</span><span class="params">(Customer customer, Shop shop)</span> <span class="comment">//...</span></span></div></pre></td></tr></table></figure>
+<p> 当我们有了customerFuture和shopFuture，那么routeFuture会包装它们两个并等待两个都完成计算，当都完成长时间计算以后，routeFuture会运行我们提供的函数findRoute()，routeFuture完成标志前两个前提future已经完成并且findRoute()也完成了。</p>
+<p>当有多个CompletableFuture一起工作时，比如你希望在一个CompletableFuture返回的值和另外一个CompletableFuture返回值一起组合在一起再处理，可以使用thenCombine函数。</p>
+<h4 id="thenAcceptBoth-runAfterBoth-用法"><a href="#thenAcceptBoth-runAfterBoth-用法" class="headerlink" title="thenAcceptBoth()/runAfterBoth()用法"></a>thenAcceptBoth()/runAfterBoth()用法</h4><p>这两个方法类似thenAccept()和thenRun()，不同之处是等待两个future完成，而不是等待一个future完成。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"> &lt;U&gt; <span class="function">CompletableFuture&lt;Void&gt; <span class="title">thenAcceptBoth</span><span class="params">(CompletableFuture&lt;? extends U&gt; other, BiConsumer&lt;? <span class="keyword">super</span> T,? <span class="keyword">super</span> U&gt; block)</span></span></div><div class="line">CompletableFuture&lt;Void&gt; <span class="title">runAfterBoth</span><span class="params">(CompletableFuture&lt;?&gt; other, Runnable action)</span></div></pre></td></tr></table></figure>
+<p>比如，假设两个future计算完成以后，我们只是需要立即发送一些事件，或者立即刷新GUI，这样就不必再建立一个新的future了，可以使用thenAcceptBoth():</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">customerFuture.thenAcceptBoth(shopFuture, (cust, shop) -&gt; &#123;</div><div class="line">    <span class="keyword">final</span> Route route = findRoute(cust, shop);</div><div class="line">    <span class="comment">//使用rout值刷新界面</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p> 这种方法比堵塞等待原来两个future要更异步性和具有事件驱动意义。</p>
+<h4 id="acceptEither-runAfterEither用法"><a href="#acceptEither-runAfterEither用法" class="headerlink" title="acceptEither/runAfterEither用法"></a>acceptEither/runAfterEither用法</h4><p>CompletableFuture 还能等待第一个future而不是所有future计算完毕，当你有两个任务，两个都是同样类型的结果，你只关心响应时间，谁快用谁的结果，不关心具体哪个任务首先返回。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function">CompletableFuture&lt;Void&gt; <span class="title">acceptEither</span><span class="params">(CompletableFuture&lt;? extends T&gt; other, Consumer&lt;? <span class="keyword">super</span> T&gt; block)</span></span></div><div class="line">CompletableFuture&lt;Void&gt; <span class="title">runAfterEither</span><span class="params">(CompletableFuture&lt;?&gt; other, Runnable action)</span></div></pre></td></tr></table></figure>
+<p>比如，你有两个系统需要继承，一个是会有很快的响应时间但是经常有偏差，而另外一个是慢一些，但是更具有可预期性。为了获得性能和预期性两种好处，你能同时调用这两个系统，等待其中一个第一个完成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">CompletableFuture&lt;String&gt; fast = fetchFast();</div><div class="line">CompletableFuture&lt;String&gt; predictable = fetchPredictably();</div><div class="line">fast.acceptEither(predictable, s -&gt; &#123;</div><div class="line">    System.out.println(<span class="string">"Result: "</span> + s);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>s可能是fetchFast()或fetchPredictably()，我们不关心，我们关系只要能第一个返回就可以，这样有时会第一个方法，有时会第二个方法返回，随机性可让我们充分利用计算机当时运行的情况潜力。</p>
+<h4 id="applyToEither-用法"><a href="#applyToEither-用法" class="headerlink" title="applyToEither()用法"></a>applyToEither()用法</h4><p>applyToEither() 是acceptEither()的哥哥. 当两个future其中一个完成后，后者用于只是简单地调用一些代码，applyToEither()会返回一个新的future. 这个future是在前面两个future其中一个完成后进行执行完成。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">CompletableFuture&lt;String&gt; fast = fetchFast();</div><div class="line">CompletableFuture&lt;String&gt; predictable = fetchPredictably();</div><div class="line">CompletableFuture&lt;String&gt; firstDone = fast.applyToEither(predictable, Function.&lt;String&gt;identity());</div></pre></td></tr></table></figure>
+<p> firstDone 这个future能够被到处传递，从客户端调用角度看，前面两个future是隐藏在firstDone后面的。</p>
+<h4 id="allOf用法"><a href="#allOf用法" class="headerlink" title="allOf用法"></a>allOf用法</h4><p>现在我们知道了如何等待两个之中一个首先完成，但是如果不是两个，而是很多个，那么就要使用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> CompletableFuture&lt;Void&gt; <span class="title">allOf</span><span class="params">(CompletableFuture&lt;?&gt;... cfs)</span></span></div><div class="line"><span class="keyword">static</span> CompletableFuture&lt;Object&gt; <span class="title">anyOf</span><span class="params">(CompletableFuture&lt;?&gt;... cfs)</span></div></pre></td></tr></table></figure>
+<p>注意static，allOf()获得一个future数组然后当所有future都完成后返回一个future，注意，这里只是等待所有的future中最快完成。</p>
+<p><em>转载：</em> <a href="http://blog.csdn.net/xiewenbo/article/details/51556472" target="_blank" rel="external">http://blog.csdn.net/xiewenbo/article/details/51556472</a></p>
+
+    </div>
+    <p class="post-meta">
+        <span class="post-cat">分类：
+            <a class="cat-link" href="/categories/JavaSE/">JavaSE</a>
+        </span>
+        <span class="post-tags">
+            标签：
+            
+    
+        <a href="/tags/JavaSE/" title="JavaSE">JavaSE</a> / 
+    
+        <a href="/tags/并发/" title="并发">并发</a> / 
+    
+        <a href="/tags/CompletableFuture/" title="CompletableFuture">CompletableFuture</a>
+    
+
+        </span>
+    </p>
+</article>
+<div class="article-share clearfix text-center">
+    <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div>
+
+<!-- 上一篇/下一篇 -->
+
+<div class="article-nav clearfix">
+    
+    <span class="prev fl">
+        上一篇<br >
+        <a href="javascript: void(0);">没有上一篇了</a>
+    </span>
+    
+
+    
+    <span class="next fr">
+        下一篇<br >
+        <a href="/2017/07/08/Websocket_tomcat_messagehandle/">
+            
+                Tomcat WebSocket消息处理器
+            
+        </a>
+    </span>
+    
+</div>
+
+<!-- 文章评论 -->
+
+            </div>
+
+        </section>
+        <!-- 侧栏部分 -->
+<aside class="sidebar">
+    <section class="widget">
+        <h3 class="widget-hd"><strong>文章分类</strong></h3>
+        <!-- 文章分类 -->
+<ul class="widget-bd">
+    
+    <li>
+        <a href="/categories/WebSocket/">WebSocket</a>
+        <span class="badge">(3)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/MyBatis/">MyBatis</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/lucene/">lucene</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+    <li>
+        <a href="/categories/JavaSE/">JavaSE</a>
+        <span class="badge">(1)</span>
+    </li>
+    
+</ul>
+    </section>
+
+    
+    <section class="widget">
+        <h3 class="widget-hd"><strong>热门标签</strong></h3>
+        <!-- 文章标签 -->
+<div class="widget-bd tag-wrap">
+  
+    <a class="tag-item" href="/tags/websocket/" title="websocket">websocket (3)</a>
+  
+    <a class="tag-item" href="/tags/Mybatis-入门/" title="Mybatis 入门">Mybatis 入门 (1)</a>
+  
+    <a class="tag-item" href="/tags/lucene/" title="lucene">lucene (1)</a>
+  
+    <a class="tag-item" href="/tags/JavaSE/" title="JavaSE">JavaSE (1)</a>
+  
+    <a class="tag-item" href="/tags/并发/" title="并发">并发 (1)</a>
+  
+    <a class="tag-item" href="/tags/CompletableFuture/" title="CompletableFuture">CompletableFuture (1)</a>
+  
+</div>
+    </section>
+    
+
+    
+    <!-- 我的微博 -->
+    <section class="widget">
+        <h3 class="widget-hd"><strong>我的微博</strong></h3>
+        <div class="widget-bd" style="position: relative;">
+  <div id="myWeiboLoading" class="text-center" style="position:absolute;top:0;left:0;right:0;bottom:0;line-height:50px;font-size:12px;background-color:#fff;z-index:9;">微博加载中...</div>
+  <iframe id="myWeibo" width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=4&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2433664154&verifier=66842d60&dpc=1"></iframe>
+  <script>
+  (function () {
+    var oMyWeibo = document.getElementById('myWeibo');
+    var oMyWeiboLoading = document.getElementById('myWeiboLoading');
+    var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+    var timer = null;
+    if (isIE) {
+      oMyWeibo.onreadystatechange = function(){
+        if(oMyWeibo.readyState === 'loaded' || oMyWeibo.readyState === 'complete'){
+          timer = setTimeout(function () {
+            oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+            timer = null;
+          }, 300);
+        }
+      };
+    } else {
+      oMyWeibo.onload = function () {
+        timer = setTimeout(function () {
+          oMyWeiboLoading.parentNode.removeChild(oMyWeiboLoading);
+          timer = null;
+        }, 300);
+      };
+    }
+  })();
+  </script>
+</div>
+    </section>
+    
+
+    
+</aside>
+<!-- / 侧栏部分 -->
+    </div>
+
+    <!-- 博客底部 -->
+    <footer class="footer">
+    &copy;
+    
+        2016-2017
+    
+
+    <a href="/">鄂ICP备15016859号-1</a>
+    
+</footer>
+<div class="back-to-top" id="JELON__backToTop" title="返回顶部">返回顶部</div>
+<!-- 添加百度自动推送 -->
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+    <!--博客js脚本 -->
+    <!-- 这里放网站js脚本 -->
+<script src="/js/main.js"></script>
+
+</body>
+</html>
